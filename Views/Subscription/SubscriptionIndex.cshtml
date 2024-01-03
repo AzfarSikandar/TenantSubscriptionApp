@@ -1,0 +1,96 @@
+﻿@model List<TenantSubscription>
+@{
+    ViewData["Title"] = "Subscriptions";
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="container mt-5">
+        @if (!User.IsInRole("Manager"))
+        {
+            <div class="container d-flex justify-content-between align-items-center">
+                <h2>Subscriptions</h2>
+            </div>
+        }
+        @if (User.IsInRole("Manager"))
+        {
+            <div class="container d-flex justify-content-between align-items-center">
+                <h2>Subscriptions</h2>
+                <a asp-action="AddSubscription" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addSubscriptionModal">Add New</a>
+            </div>
+        }
+
+        <hr />
+
+        @if (Model.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">S.No</th>
+                        <th scope="col">Application Name</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <th scope="row">@(i + 1)</th>
+                            <td>@Model[i].Application.Name</td>
+
+                            @if (@Model[i].IsActive)
+                            {
+                                <td>Active</td>
+                                <td>
+                                    @* var appName = @Model[i].Replace(" ", "") *@
+                                    <button class="btn btn-success" onclick="launchApplication('@Model[i].Application.Id', @Model[i].Id)">Launch</button>
+                                </td>
+                            }
+                            @if (!@Model[i].IsActive)
+                            {
+                                <td>Deployment In-Progress</td>
+                                <td>
+                                    @* var appName = @Model[i].Replace(" ", "") *@
+                                    <button class="btn btn-success" onclick="launchApplication('@Model[i].Application.Id', @Model[i].Id)" disabled style="pointer-events: revert;">Launch</button>
+                                </td>
+                            }
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No subscriptions yet.</p>
+        }
+    </div>
+}
+@* JavaScript function to launch the application in a new tab *@
+<script>
+    const Applications = {
+        ERP: 1,
+        HRMS: 2
+    }
+    function launchApplication(applicationId, subscriptionId) {
+        
+        // For demonstration, opening a new tab with the application name
+        // let baseUrl = "";
+        // let appName = applicationName.replace(/\s/g, "");
+        console.log('Value of constant ERP: ' + Number(Applications.ERP))
+        console.log('Value of constant HRMS: ' + Number(Applications.HRMS))
+        if (Number(applicationId) === Number(Applications.ERP)) {
+            // console.log('constant working for ERP')
+
+            window.open('https://erpsystem.azurewebsites.net?subscriptionId=' + subscriptionId, '_blank');
+        }
+        else if (Number(applicationId) === Number(Applications.HRMS)) {
+            // console.log('constant working for HRMS')
+            console.log('value of constant: ' + Number(Applications.ERP))
+
+            window.open('https://hrsystemsgs.azurewebsites.net/WebLogin.aspx?subscriptionId=' + subscriptionId, '_blank');
+        }
+    }
+</script>
